@@ -12,7 +12,10 @@ exports.addEmployee = functions.https.onRequest(async (request, response) => {
       .end("profileURL and friends fields should be included in the data");
   }
 
-  let docRef = admin.firestore().collection("employees").doc(body.profileURL);
+  let docRef = admin
+    .firestore()
+    .collection("employees")
+    .doc(request.body.profileURL);
   await docRef.set({
     ...request.body,
   });
