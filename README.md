@@ -1,3 +1,1 @@
-# gGMVP
-# gGMVP
 # getG
