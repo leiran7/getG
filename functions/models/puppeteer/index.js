@@ -37,3 +37,5 @@ exports.scrapePage = async (browser, scrapeObject) => {
   await page.goto(scrapeObject.url);
   await scrapeObject.pageScraper(page);
 };
+
+

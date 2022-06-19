@@ -1,10 +1,13 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 
-const { initializedNeoConnection } = require("./models/neo4j");
+const {
+  initializedNeoConnection,
+  wrireDataToNeo4j,
+} = require("./models/neo4j");
 
 admin.initializeApp();
-const session = initializedNeoConnection();
+initializedNeoConnection();
 
 exports.addEmployee = functions.https.onRequest(async (request, response) => {
   if (
@@ -18,20 +21,17 @@ exports.addEmployee = functions.https.onRequest(async (request, response) => {
 
   let docRef = admin
     .firestore()
-    .collection("employees")
+    .collection("jops-employeeData")
     .doc(request.body.profileURL);
   await docRef.set({
     ...request.body,
   });
 
-  console.log("start writing to neo");
-  await wrireDataToNeo4j("bb");
-  console.log("finish writing to neo");
   response.status(200).end();
 });
 
 exports.addEmployees = functions.https.onRequest(async (request, response) => {
-  let employeesColRef = admin.firestore().collection("employees");
+  let employeesColRef = admin.firestore().collection("jops-employeeData");
   if (!request.body.hasOwnProperty("employeesList")) {
     response
       .status(400)
@@ -49,18 +49,11 @@ exports.addEmployees = functions.https.onRequest(async (request, response) => {
   response.status(200).end();
 });
 
-let wrireDataToNeo4j = async (name) => {
-  const writeQuery = `CREATE (p1:Person { name: $name })
-  RETURN p1`;
-
-  // Write transactions allow the driver to handle retries and transient errors
-  const writeResult = await session.writeTransaction((tx) =>
-    tx.run(writeQuery, { name })
-  );
-  writeResult.records.forEach((record) => {
-    const person1Node = record.get("p1");
-    console.log(`Created node with name ${person1Node.properties.name}`);
+exports.onDocumentCreated = functions.firestore
+  .document("jops-employeeData/{docId}")
+  .onCreate((snap, context) => {
+    const newValue = snap.data();
+    let docId = context.params.docId;
+    //send to neo4j
+    //move the doc to completed jops (delete and move)
   });
-
-  await session.close();
-};
