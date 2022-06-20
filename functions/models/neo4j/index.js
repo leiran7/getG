@@ -12,16 +12,16 @@ exports.initializedNeoConnection = () => {
   neo4jsession = driver.session();
 };
 
-exports.wrireDataToNeo4j = async (name) => {
-  const writeQuery = `CREATE (p1:Person { name: $name })
+exports.createLinkedinProfileNode = async (id, additionalData) => {
+  const writeQuery = `MERGE (p1:LinkedinProfile { internal_id: $id })
       RETURN p1`;
+  await writeData(writeQuery, { id });
+  //await neo4jsession.close();
+};
 
-  let writeResult = await writeData(writeQuery, { name });
-  writeResult.records.forEach((record) => {
-    const person1Node = record.get("p1");
-    console.log(`Created node with name ${person1Node.properties.name}`);
-  });
-
+exports.createConnectRelationship = async (id1, id2) => {
+  const writeQuery = `MERGE (p1:LinkedinProfile{internal_id:$id1}) MERGE (p2:LinkedinProfile{internal_id:$id2}) MERGE (p1)-[:KNOWS]->(p2)  return p1,p2`;
+  await writeData(writeQuery, { id1, id2 });
   //await neo4jsession.close();
 };
 
