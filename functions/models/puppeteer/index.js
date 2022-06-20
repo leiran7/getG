@@ -21,21 +21,14 @@ exports.closeBrowser = async (browser) => {
   await browser.close();
 };
 
-exports.scrapeAll = async (browserInstance) => {
-  let browser;
+//the function get the browser instance and the scrape data (the url and the dedicated scrape code) by pageScraper and scrape the page
+exports.scrapePage = async (browserInstance, scrapeObject) => {
   try {
-    browser = await browserInstance;
-    await scrapePage(browser, "");
+    let browser = await browserInstance;
+    let page = await browser.newPage();
+    await page.goto(scrapeObject.url);
+    await scrapeObject.pageScraper(page);
   } catch (err) {
     console.log("Could not resolve the browser instance => ", err);
   }
 };
-
-//the function get the url that need to be scraped and the dedicated scrape code by pageScraper and scrape the page;
-exports.scrapePage = async (browser, scrapeObject) => {
-  let page = await browser.newPage();
-  await page.goto(scrapeObject.url);
-  await scrapeObject.pageScraper(page);
-};
-
-
