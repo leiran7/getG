@@ -7,8 +7,8 @@ exports.initializedNeoConnection = () => {
 };
 exports.createLinkedinProfileNode = async (id, additionalData) => {
     const writeQuery = `MERGE (p1:LinkedinProfile { internal_id: $id })
-      RETURN p1`;
-    await writeData(writeQuery, { id });
+  on match set p1+=$additionalData RETURN p1`;
+    await writeData(writeQuery, { id, additionalData });
     //await neo4jsession.close();
 };
 exports.createConnectRelationship = async (id1, id2) => {
