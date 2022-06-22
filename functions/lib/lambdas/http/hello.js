@@ -1,8 +1,10 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const helloWorld = (functions) => functions.https.onRequest((request, response) => {
-    functions.logger.info("Hello logs!", { structuredData: true });
-    response.send("Hello from Firebase!");
-});
-exports.default = helloWorld;
+const { onEmployeeDocumentCreated } = require("./services/firebase/triggers");
+const { addEmployeeFunction } = require("./services/firebase/cloud-functions");
+const { initializedNeoConnection } = require("./services/neo4j");
+//initialization
+initializedNeoConnection();
+//cloud functions:
+exports.addEmployeeFunction = addEmployeeFunction;
+//triggers:
+exports.onDocumentCreated = onEmployeeDocumentCreated;
 //# sourceMappingURL=hello.js.map

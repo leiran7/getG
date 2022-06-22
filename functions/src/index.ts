@@ -1,25 +1,12 @@
-// import * as functions from "firebase-functions";
-import * as fg from "fast-glob";
+const { onEmployeeDocumentCreated } = require("../services/firebase/triggers");
+const { addEmployeeFunction } = require("../services/firebase/cloud-functions");
+const { initializedNeoConnection } = require("../services/neo4j");
 
-// Start writing Firebase Functions
-// https://firebase.google.com/docs/functions/typescript
+// //initialization
+initializedNeoConnection();
 
-// export const helloWorld = functions.https.onRequest((request, response) => {
-//   functions.logger.info("Hello logs!", { structuredData: true });
-//   response.send("Hello from Firebase!");
-// });
+// //cloud functions:
+export const addEmployeeFunctionFn = addEmployeeFunction;
 
-const generateFunctions = () => {
-  const entries = fg.sync("lambdas/**/*.ts", { dot: false });
-  return entries
-    .map((path) => {
-      return [
-        path.replace("/", "_").replace("lambdas_", ""),
-        Object.values(require("./" + path))[0],
-      ];
-    })
-    .reduce((prev, curr) => ({ ...prev, [`${curr[0]}`]: curr[1] }), {});
-};
-
-console.log(generateFunctions());
-export default generateFunctions();
+// //triggers:
+export const onDocumentCreatedFn = onEmployeeDocumentCreated;
