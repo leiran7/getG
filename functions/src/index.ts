@@ -1,12 +1,12 @@
-const { onEmployeeDocumentCreated } = require("../services/firebase/triggers");
-const { addEmployeeFunction } = require("../services/firebase/cloud-functions");
-const { initializedNeoConnection } = require("../services/neo4j");
+const { onEmployeeDocumentCreated } = require("./services/firebase/triggers");
+const { addEmployeeFunction } = require("./services/firebase/cloud-functions");
+const { initializedNeoConnection } = require("./services/neo4j");
 
-// //initialization
+//initialization
 initializedNeoConnection();
 
-// //cloud functions:
-export const addEmployeeFunctionFn = addEmployeeFunction;
+//cloud functions:
+exports.addEmployeeFunction = addEmployeeFunction;
 
-// //triggers:
-export const onDocumentCreatedFn = onEmployeeDocumentCreated;
+//triggers:
+exports.onDocumentCreated = onEmployeeDocumentCreated;
