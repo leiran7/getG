@@ -28,4 +28,5 @@ export const scraper = async (profile) => {
   // await scraper.close()
 
   console.log(result);
+  return result;
 };
