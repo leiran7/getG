@@ -5,13 +5,16 @@ const {
 } = require("../neo4j");
 const { scraper } = require("../puppeteer/linkedin-profile-scraper/src/examples/module");
 
-exports.onEmployeeDocumentCreated = functions.firestore
+exports.onEmployeeDocumentCreated = functions.runWith({
+  memory: '8GB'
+}).firestore
   .document("jops-employeeData/{docId}")
   .onCreate(async (snap, context) => {
     let docData = snap.data();
+    console.log({ docData })
     let docId = context.params.docId;
     //scrape the fucking data
-    let profileProprties = await scraper(docData.profileURL)
+    let profileProprties = await scraper(docData.url)
     console.log({ profileProprties })
     //build graph in neo4j
     await createLinkedinProfileNode(docId, profileProprties);

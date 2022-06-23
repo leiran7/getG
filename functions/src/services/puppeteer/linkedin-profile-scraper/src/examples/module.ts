@@ -1,5 +1,3 @@
-require("dotenv").config();
-
 import { LinkedInProfileScraper } from "../index";
 
 export const scraper = async (profile) => {
