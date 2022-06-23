@@ -3,6 +3,7 @@ const {
   createLinkedinProfileNode,
   createConnectRelationship,
 } = require("../neo4j");
+const { scraper } = require("../puppeteer/linkedin-profile-scraper/src/examples/module");
 
 exports.onEmployeeDocumentCreated = functions.firestore
   .document("jops-employeeData/{docId}")
@@ -10,9 +11,8 @@ exports.onEmployeeDocumentCreated = functions.firestore
     let docData = snap.data();
     let docId = context.params.docId;
     //scrape the fucking data
-    let profileProprties = {
-      name: "nizar",
-    };
+    let profileProprties = await scraper(docData.profileURL)
+    console.log({ profileProprties })
     //build graph in neo4j
     await createLinkedinProfileNode(docId, profileProprties);
     for (const friendId of docData.connections) {

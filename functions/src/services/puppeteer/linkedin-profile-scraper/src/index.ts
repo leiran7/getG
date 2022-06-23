@@ -141,6 +141,9 @@ interface ScraperUserDefinedOptions {
    * Default: `true`
    */
   headless?: boolean;
+
+  //vpn object
+  vpn?: any;
 }
 
 interface ScraperOptions {
@@ -181,10 +184,13 @@ export class LinkedInProfileScraper {
   };
 
   private browser: Browser | null = null;
+  private vpn: any = null;
 
   constructor(userDefinedOptions: ScraperUserDefinedOptions) {
     const logSection = "constructing";
     const errorPrefix = "Error during setup.";
+
+    if (userDefinedOptions.vpn) this.vpn = userDefinedOptions.vpn;
 
     if (!userDefinedOptions.sessionCookieValue) {
       throw new Error(
@@ -254,6 +260,7 @@ export class LinkedInProfileScraper {
         }...`
       );
 
+      const vpn = this.vpn ? [this.vpn?.server] : [];
       this.browser = await puppeteer.launch({
         headless: this.options.headless,
         args: [
@@ -305,6 +312,7 @@ export class LinkedInProfileScraper {
           "--password-store=basic",
           "--use-gl=swiftshader",
           "--use-mock-keychain",
+          ...vpn,
         ],
         timeout: this.options.timeout,
       });
@@ -348,6 +356,12 @@ export class LinkedInProfileScraper {
 
     try {
       const page = await this.browser.newPage();
+
+      if (this.vpn)
+        await page.authenticate({
+          username: this.vpn.username,
+          password: this.vpn.password,
+        });
 
       // Use already open page
       // This makes sure we don't have an extra open tab consuming memory
@@ -541,6 +555,12 @@ export class LinkedInProfileScraper {
     const logSection = "checkIfLoggedIn";
 
     const page = await this.createPage();
+
+    if (this.vpn)
+      await page.authenticate({
+        username: this.vpn.username,
+        password: this.vpn.password,
+      });
 
     statusLog(logSection, "Checking if we are still logged in...");
 
