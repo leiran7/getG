@@ -1,33 +1,52 @@
 const neo4j = require("neo4j-driver");
 const config = require("../../config");
 
-let neo4jsession;
-
-exports.initializedNeoConnection = () => {
+let = initializedNeoConnection = () => {
   const driver = neo4j.driver(
     config.neo4j.uri,
     neo4j.auth.basic(config.neo4j.user, config.neo4j.password)
   );
 
-  neo4jsession = driver.session();
+  return (neo4jsession = driver.session());
 };
 
-exports.createLinkedinProfileNode = async (id, additionalData) => {
+exports.createLinkedinProfileNode = async (id, nodeProperties) => {
+  const neo4jsession = await initializedNeoConnection();
   const writeQuery = `MERGE (p1:LinkedinProfile { internal_id: $id })
-  on match set p1+=$additionalData RETURN p1`;
-  await writeData(writeQuery, { id, additionalData });
-  //await neo4jsession.close();
+  on match set p1+=$nodeProperties
+  on create set p1+=$nodeProperties 
+  RETURN p1`;
+  await writeData([{ query: writeQuery, params: { id, nodeProperties } }]);
+  await neo4jsession.close();
 };
 
-exports.createConnectRelationship = async (id1, id2) => {
+let createConnectRelationshipQueryObject = (id1, id2) => {
   const writeQuery = `MERGE (p1:LinkedinProfile{internal_id:$id1}) MERGE (p2:LinkedinProfile{internal_id:$id2}) MERGE (p1)-[:KNOWS]->(p2)  return p1,p2`;
-  await writeData(writeQuery, { id1, id2 });
-  //await neo4jsession.close();
+  return { query: writeQuery, params: { id1, id2 } };
 };
 
-let writeData = async (writeQuery, data) => {
-  // Write transactions allow the driver to handle retries and transient errors
-  return await neo4jsession.writeTransaction((tx) =>
-    tx.run(writeQuery, { ...data })
-  );
+exports.createConnectRelationships = async (id, connections) => {
+  const neo4jsession = await initializedNeoConnection();
+  writeQueryArray = [];
+  for (const friendId of connections) {
+    writeQueryArray.push(createConnectRelationshipQueryObject(id, friendId));
+  }
+
+  await writeData(writeQueryArray);
+  await neo4jsession.close();
+};
+
+//Writing with transaction  Reactive Session
+//params: QueryArray - array of Query object
+//queryObject  consist of query and params object
+exports.writeData = async (queryObjectArray) => {
+  try {
+    await neo4jsession.writeTransaction(async (tx) => {
+      for (const queryObject of queryObjectArray) {
+        await tx.run(queryObject.query, queryObject.params);
+      }
+    });
+  } catch (e) {
+    console.log("error while writing to neo4j:"+error);
+  }
 };
