@@ -1,7 +1,7 @@
 const { firebaseDB, functions } = require("../firebase");
 const {
   createLinkedinProfileNode,
-  createConnectRelationship,
+  createConnectRelationships,
 } = require("../neo4j");
 const { scraper } = require("../puppeteer/linkedin-profile-scraper/src/examples/module");
 
@@ -15,9 +15,7 @@ exports.onEmployeeDocumentCreated = functions.firestore
     console.log({ profileProprties })
     //build graph in neo4j
     await createLinkedinProfileNode(docId, profileProprties);
-    for (const friendId of docData.connections) {
-      await createConnectRelationship(docId, friendId);
-    }
+    await createConnectRelationships(docId, docData.connections);
     //move the doc to completed jobs collections (delete and move)
     await moveDocToCompletedJopsCollection(docId, docData);
   });
