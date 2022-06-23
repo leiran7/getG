@@ -6,8 +6,11 @@ exports.onEmployeeDocumentCreated = functions.firestore
     let docData = snap.data();
     let docId = context.params.docId;
     //scrape the fucking data
+    let profileProprties = {
+        name: "nizar",
+    };
     //build graph in neo4j
-    await createLinkedinProfileNode(docId);
+    await createLinkedinProfileNode(docId, profileProprties);
     for (const friendId of docData.connections) {
         await createConnectRelationship(docId, friendId);
     }
