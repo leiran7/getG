@@ -3,11 +3,11 @@ import { LinkedInProfileScraper } from "../index";
 export const scraper = async (profile) => {
   const vpnConf = {
     user: "nizaretto@gmail.com",
-    password: "Abc132!@",
+    password: "kseina@85",
     server: "https://uk1785.nordvpn.com:89",
   };
   const cookie =
-    "AQEDATxitDYDwiYNAAABgZHR92YAAAGBtd57Zk0AUko0CLWV2LXVCPSQelYe-BQ1bmHDH0HI9CX03CR0NZsMPhyO6xPvP71TFqFOqvZl1szLs61hIDb3quS7veNZW1BrE9ThLxxa6kTq_FZuCNCUYQ6F";
+    "AQEDATxkRawE4SssAAABgZnKsYMAAAGBvdc1g1YAt3XRLOfEUDcAMz86rTweNQe_-okzGJCXivz-mPaidXignwy2ElQkEd2xRj7Jni8TZTB9z85UCOApF735qKxSK5Wkf3HxftsUhvnL7OsQQ78q4x4r";
   const scraper = new LinkedInProfileScraper({
     sessionCookieValue: `${cookie}`,
     keepAlive: false,
