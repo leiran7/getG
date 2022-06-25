@@ -39,7 +39,7 @@ exports.createConnectRelationships = async (id, connections) => {
 //Writing with transaction  Reactive Session
 //params: QueryArray - array of Query object
 //queryObject  consist of query and params object
-exports.writeData = async (queryObjectArray) => {
+let writeData = async (queryObjectArray) => {
   try {
     await neo4jsession.writeTransaction(async (tx) => {
       for (const queryObject of queryObjectArray) {
@@ -47,6 +47,6 @@ exports.writeData = async (queryObjectArray) => {
       }
     });
   } catch (e) {
-    console.log("error while writing to neo4j:"+error);
+    console.log("error while writing to neo4j:" + error);
   }
 };

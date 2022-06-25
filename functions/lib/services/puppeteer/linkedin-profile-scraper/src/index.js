@@ -59,13 +59,16 @@ class LinkedInProfileScraper {
             headless: true,
         };
         this.browser = null;
+        this.vpn = null;
         /**
          * Method to load Puppeteer in memory so we can re-use the browser instance.
          */
         this.setup = async () => {
+            var _a;
             const logSection = "setup";
             try {
                 (0, utils_1.statusLog)(logSection, `Launching puppeteer in the ${this.options.headless ? "background" : "foreground"}...`);
+                const vpn = this.vpn ? [(_a = this.vpn) === null || _a === void 0 ? void 0 : _a.server] : [];
                 this.browser = await puppeteer.launch({
                     headless: this.options.headless,
                     args: [
@@ -117,6 +120,7 @@ class LinkedInProfileScraper {
                         "--password-store=basic",
                         "--use-gl=swiftshader",
                         "--use-mock-keychain",
+                        ...vpn,
                     ],
                     timeout: this.options.timeout,
                 });
@@ -152,6 +156,11 @@ class LinkedInProfileScraper {
             ];
             try {
                 const page = await this.browser.newPage();
+                if (this.vpn)
+                    await page.authenticate({
+                        username: this.vpn.username,
+                        password: this.vpn.password,
+                    });
                 // Use already open page
                 // This makes sure we don't have an extra open tab consuming memory
                 const firstPage = (await this.browser.pages())[0];
@@ -282,6 +291,11 @@ class LinkedInProfileScraper {
         this.checkIfLoggedIn = async () => {
             const logSection = "checkIfLoggedIn";
             const page = await this.createPage();
+            if (this.vpn)
+                await page.authenticate({
+                    username: this.vpn.username,
+                    password: this.vpn.password,
+                });
             (0, utils_1.statusLog)(logSection, "Checking if we are still logged in...");
             // Go to the login page of LinkedIn
             // If we do not get redirected and stay on /login, we are logged out
@@ -588,6 +602,8 @@ class LinkedInProfileScraper {
         };
         const logSection = "constructing";
         const errorPrefix = "Error during setup.";
+        if (userDefinedOptions.vpn)
+            this.vpn = userDefinedOptions.vpn;
         if (!userDefinedOptions.sessionCookieValue) {
             throw new Error(`${errorPrefix} Option "sessionCookieValue" is required.`);
         }

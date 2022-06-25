@@ -1,16 +1,20 @@
 const { firebaseDB, functions } = require("../firebase");
 const { createLinkedinProfileNode, createConnectRelationships, } = require("../neo4j");
-exports.onEmployeeDocumentCreated = functions.firestore
-    .document("jops-employeeData/{docId}")
+const { scraper, } = require("../puppeteer/linkedin-profile-scraper/src/examples/module");
+exports.onEmployeeDocumentCreated = functions
+    .runWith({
+    memory: "8GB",
+})
+    .firestore.document("jops-employeeData/{docId}")
     .onCreate(async (snap, context) => {
     let docData = snap.data();
+    console.log({ docData });
     let docId = context.params.docId;
     //scrape the fucking data
-    let profileProprties = {
-        name: "nizar",
-    };
+    let profileProprties = await scraper(docData.url);
+    console.log(profileProprties);
     //build graph in neo4j
-    await createLinkedinProfileNode(docId, profileProprties);
+    await createLinkedinProfileNode(docId, profileProprties.userProfile);
     await createConnectRelationships(docId, docData.connections);
     //move the doc to completed jobs collections (delete and move)
     await moveDocToCompletedJopsCollection(docId, docData);

@@ -13,7 +13,7 @@ exports.createLinkedinProfileNode = async (id, nodeProperties) => {
     await writeData([{ query: writeQuery, params: { id, nodeProperties } }]);
     await neo4jsession.close();
 };
-createConnectRelationshipQueryObject = (id1, id2) => {
+let createConnectRelationshipQueryObject = (id1, id2) => {
     const writeQuery = `MERGE (p1:LinkedinProfile{internal_id:$id1}) MERGE (p2:LinkedinProfile{internal_id:$id2}) MERGE (p1)-[:KNOWS]->(p2)  return p1,p2`;
     return { query: writeQuery, params: { id1, id2 } };
 };
